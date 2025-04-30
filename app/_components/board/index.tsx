@@ -59,15 +59,17 @@ export function BoardList({ initialBoards, onBoardsChange }: BoardListProps) {
       })
 
       if (response.ok) {
-        const updatedBoards = boards.filter((b) => b.id !== boardToDelete.id)
+        const updatedBoards = boards.map((b) =>
+          b.id === boardToDelete.id ? { ...b, active: false } : b
+        )
         setBoards(updatedBoards)
         if (onBoardsChange) onBoardsChange(updatedBoards)
         setIsModalOpen(false)
       } else {
-        console.error("Erro ao excluir quadro")
+        console.error("Erro ao inativar quadro")
       }
     } catch (error) {
-      console.error("Erro ao excluir quadro:", error)
+      console.error("Erro ao inativar quadro:", error)
     } finally {
       setIsDeleting(false)
     }
@@ -107,15 +109,22 @@ export function BoardList({ initialBoards, onBoardsChange }: BoardListProps) {
                     <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Inativo</Badge>
                   )}
                   <div className="flex space-x-2">
-                    <Link
-                      href={`/board/${board.id}?name=${encodeURIComponent(board.name)}`}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      <Eye size={18} />
-                    </Link>
+                    {board.active ? (
+                      <Link
+                        href={`/board/${board.id}?name=${encodeURIComponent(board.name)}`}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        <Eye size={18} />
+                      </Link>
+                    ) : (
+                      <span className="text-gray-300 cursor-not-allowed">
+                        <Eye size={18} />
+                      </span>
+                    )}
                     <button
                       className="text-gray-500 hover:text-red-600 transition-colors"
                       onClick={() => handleDeleteClick(board)}
+                      disabled={!board.active}
                     >
                       <Trash2 size={18} />
                     </button>
@@ -131,9 +140,9 @@ export function BoardList({ initialBoards, onBoardsChange }: BoardListProps) {
         <CustomModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          title="Confirmar exclusão"
-          description={`Tem certeza que deseja excluir o quadro "${boardToDelete.name}"? Esta ação não pode ser desfeita.`}
-          confirmText="Excluir"
+          title="Confirmar inativação"
+          description={`Tem certeza que deseja inativar o quadro "${boardToDelete.name}"?.`}
+          confirmText="Inativar"
           cancelText="Cancelar"
           onConfirm={handleConfirmDelete}
           isConfirmLoading={isDeleting}

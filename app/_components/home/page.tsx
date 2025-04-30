@@ -4,7 +4,7 @@ import { useState } from "react"
 import { PlusIcon } from "lucide-react"
 import { Button } from "../ui/button"
 import { BoardList } from "../board"
-import { CreateBoardModal } from "@/app/_components/modal/board/create"
+import { CreateBoardModal } from "@/app/_components/board/modal/create"
 import type { Board } from "@/app/types/board"
 
 export function Home() {
