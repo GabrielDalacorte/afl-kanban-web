@@ -65,7 +65,7 @@ export default function LoginPage() {
 
       if (response.ok) {
         const data = await response.json();
-        saveToStorage({ token: data.token });
+        saveToStorage({ token: data.token, image: data.image });
         router.push("/");
         toast.success("Login realizado com sucesso!");
       } else {

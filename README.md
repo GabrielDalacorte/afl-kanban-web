@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Board Management Project
 
-First, run the development server:
+This is a board management project that allows you to create, view, and manage boards efficiently. The project is built using React and Next.js, with backend Django integration for data persistence.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## How to Run the Project
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Follow the instructions below to set up and run the project locally.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js installed on your machine
+- npm or yarn package manager
 
-## Learn More
+### Steps to Run
 
-To learn more about Next.js, take a look at the following resources:
+1. **Clone the Repository**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   Clone this repository to your local machine using the following command:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   git clone https://github.com/your-username/your-repository.git
+   ```
 
-## Deploy on Vercel
+2. **Install Dependencies**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   Navigate to the project directory and install the necessary dependencies:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   cd your-repository
+   npm install
+   ```
+
+   or, if you are using yarn:
+
+   ```bash
+   yarn install
+   ```
+
+3. **Environment Configuration**
+
+   Create a `.env` file in the root of the project and add the following environment variable:
+
+   ```env
+   NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+   ```
+
+   This variable is required to configure the backend URL that the project will use.
+
+4. **Run the Project**
+
+   Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+   or, if you are using yarn:
+
+   ```bash
+   yarn dev
+   ```
+
+5. **Access the Project**
+
+   Open your browser and go to `http://localhost:3000` to view the project running.
+
+
+## Project Structure
+
+- **Components:** Located in the `app/_components` folder, where modal components and other reusable elements are found.
+- **Services:** Located in the `app/services` folder, where functions for local storage interaction and backend communication are defined.
+- **Configuration:** `next.config.ts` file for specific Next.js configurations.
+
+Feel free to contribute to the project or open issues to report problems.
+
+
+

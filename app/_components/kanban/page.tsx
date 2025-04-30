@@ -7,7 +7,8 @@ import Image from "next/image"
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"
 import { configBackendConnection, endpoints, getAuthHeaders } from "@/app/services/api"
 import { Column, KanbanBoardProps } from "@/app/types/kanban"
-
+import { getImage } from "@/app/services/storage"
+import { toast } from "react-toastify"
 
 async function updateCardColumn(cardId: number, newColumnId: number) {
   await fetch(`${configBackendConnection.baseURL}/${endpoints.cardsAPI}${cardId}/`, {
@@ -20,6 +21,7 @@ async function updateCardColumn(cardId: number, newColumnId: number) {
 export function KanbanBoard({ boardId }: KanbanBoardProps) {
   const [columns, setColumns] = useState<Column[]>([])
   const [loading, setLoading] = useState(true)
+  const [avatarUrl, setAvatarUrl] = useState("/person.png")
 
   useEffect(() => {
     async function fetchColumnsAndCards() {
@@ -37,35 +39,70 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
     if (boardId) fetchColumnsAndCards()
   }, [boardId])
 
+  useEffect(() => {
+    const userImage = getImage()
+    if (userImage) {
+      setAvatarUrl(`${configBackendConnection.baseURL}${userImage}`)
+    }
+  }, [])
+
   const onDragEnd = async (result: any) => {
     const { destination, source } = result
     if (!destination || (destination.droppableId === source.droppableId && destination.index === source.index)) {
       return
     }
-
+  
     const sourceColIdx = columns.findIndex((col) => col.id.toString() === source.droppableId)
     const destColIdx = columns.findIndex((col) => col.id.toString() === destination.droppableId)
     if (sourceColIdx === -1 || destColIdx === -1) return
-
+  
     const newColumns = [...columns]
     const sourceCards = Array.from(newColumns[sourceColIdx].cards)
     const [movedCard] = sourceCards.splice(source.index, 1)
     const destCards = Array.from(newColumns[destColIdx].cards)
+  
+    const destColumn = newColumns[destColIdx]
+    let statusChanged = false
+    if (destColumn.name.toLowerCase() === "producao" && movedCard.status !== "done") {
+      movedCard.status = "done"
+      statusChanged = true
+    }
+  
     destCards.splice(destination.index, 0, movedCard)
-
-    newColumns[sourceColIdx] = {
-      ...newColumns[sourceColIdx],
-      cards: sourceCards,
-    }
-    newColumns[destColIdx] = {
-      ...newColumns[destColIdx],
-      cards: destCards,
-    }
-    setColumns(newColumns)
-
+  
     try {
-      await updateCardColumn(movedCard.id, newColumns[destColIdx].id)
+      const response = await fetch(
+        `${configBackendConnection.baseURL}/${endpoints.cardsAPI}${movedCard.id}/`,
+        {
+          method: "PATCH",
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ column: newColumns[destColIdx].id }),
+        }
+      )
+  
+      if (!response.ok) {
+        const data = await response.json()
+        toast.error(data.detail || "Erro ao mover card")
+        return
+      }
+  
+      newColumns[sourceColIdx] = {
+        ...newColumns[sourceColIdx],
+        cards: sourceCards,
+      }
+      newColumns[destColIdx] = {
+        ...newColumns[destColIdx],
+        cards: destCards,
+      }
+      setColumns(newColumns)
+  
+      if (statusChanged) {
+        toast.info("Status atualizado")
+      } else {
+        toast.info("Card movido")
+      }
     } catch (e) {
+      toast.error("Erro ao mover card")
     }
   }
 
@@ -104,12 +141,18 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
                             <div className="mb-2">
                               <Badge
                                 className={
-                                  card.status === "late"
-                                    ? "bg-amber-100 text-amber-800 hover:bg-amber-100"
-                                    : "bg-green-100 text-green-800 hover:bg-green-100"
+                                  card.status === "done"
+                                    ? "bg-[#424A4D] text-white rounded-full px-3 py-1"
+                                    : card.status === "late"
+                                    ? "bg-[#F9BE34] text-black rounded-full px-3 py-1"
+                                    : "bg-[#4A9800] text-white rounded-full px-3 py-1"
                                 }
                               >
-                                {card.status === "late" ? "Atrasado" : "No prazo"}
+                                {card.status === "done"
+                                  ? "Concluído"
+                                  : card.status === "late"
+                                  ? "Atrasado"
+                                  : "No prazo"}
                               </Badge>
                             </div>
                             <div className="flex items-center mb-2">
@@ -123,7 +166,7 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
                               </div>
                               <div>
                                 <Image
-                                  src="/mystical-forest-spirit.png"
+                                  src={avatarUrl}
                                   alt="Avatar"
                                   width={24}
                                   height={24}

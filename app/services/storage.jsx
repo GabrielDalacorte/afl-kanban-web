@@ -33,3 +33,6 @@ export const isAuthenticated = () => {
     return !!localStorage.getItem("token")
 }
   
+export const getImage = () => {
+    return getFromStorage('image');
+};
